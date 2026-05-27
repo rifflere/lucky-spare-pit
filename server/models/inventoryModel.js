@@ -1,101 +1,83 @@
 import { getDb } from '../db/db.js';
 
-/*
- * Retrieves all inventory items from the database. Each item includes all fields defined in the inventory schema.
- * Returns an array of inventory items.
- */
+function normalizeTimestamp(value) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  return typeof value === 'string' ? value : new Date(value).toISOString();
+}
+
 export async function getAllInventory() {
-    const db = await getDb();
-
-    return db.all('SELECT * FROM inventory');
+  const db = getDb();
+  const result = await db.query('SELECT * FROM inventory ORDER BY id ASC');
+  return result.rows ?? [];
 }
 
-/*
- * Finds an inventory item by its name. Used to check for possible duplicates when adding new items.
- * Returns the inventory item if found, or undefined if no match is found.
- */
 export async function findInventoryByName(name) {
-    const db = await getDb();
-    return db.get('SELECT * FROM inventory WHERE LOWER(name) = LOWER(?)', name);
+  const db = getDb();
+  const result = await db.query(
+    'SELECT * FROM inventory WHERE name ILIKE $1 LIMIT 1',
+    [name]
+  );
+
+  return result.rows[0] ?? null;
 }
 
-/*
- * Returns the list of column names for the inventory table, derived directly from the schema.
- * Used by the service layer to validate incoming fields against the current table structure.
- */
-export async function getInventoryColumns() {
-    const db = await getDb();
-    const rows = await db.all('PRAGMA table_info(inventory)');
-    return rows.map(row => row.name);
-}
-
-/*
- * Updates an inventory item by its ID with the provided fields.
- * Returns the updated item.
- */
 export async function updateInventoryItem(id, fields) {
-    const db = await getDb();
-    const entries = Object.entries(fields);
-    const setClauses = entries.map(([col]) => `${col} = ?`).join(', ');
-    const values = entries.map(([, val]) => val);
-    await db.run(
-        `UPDATE inventory SET ${setClauses} WHERE id = ?`,
-        ...values,
-        id
-    );
-    return db.get('SELECT * FROM inventory WHERE id = ?', id);
+  const db = getDb();
+  const normalizedFields = {
+    ...fields,
+    lastUpdated: normalizeTimestamp(fields.lastUpdated)
+  };
+
+  const columns = Object.keys(normalizedFields);
+  const setClauses = columns.map((key, index) => `${key} = $${index + 1}`).join(', ');
+  const values = columns.map(key => normalizedFields[key]);
+
+  const result = await db.query(
+    `UPDATE inventory SET ${setClauses} WHERE id = $${columns.length + 1} RETURNING *`,
+    [...values, id]
+  );
+
+  return result.rows[0];
 }
 
-// Returns all distinct non-empty checkOutBy values in the database.
 export async function getDistinctSubteams() {
-    const db = await getDb();
-    const rows = await db.all(
-        `SELECT DISTINCT checkOutBy FROM inventory WHERE checkOutBy IS NOT NULL AND checkOutBy != '' ORDER BY checkOutBy`
-    );
-    return rows.map(r => r.checkOutBy);
+  const db = getDb();
+  const result = await db.query(
+    "SELECT DISTINCT checkOutBy FROM inventory WHERE checkOutBy <> '' AND checkOutBy IS NOT NULL ORDER BY checkOutBy ASC"
+  );
+
+  const values = result.rows.map(row => row.checkoutby || row.checkOutBy).filter(Boolean);
+  return Array.from(new Set(values));
 }
 
-/*
- * Inserts a new inventory item into the database.
- * Returns the inserted item.
- */
 export async function insertInventoryItem(item) {
-    const db = await getDb();
-    const result = await db.run(
-        `INSERT INTO inventory 
-            (name, type, area, location, status, quantity, condition, itemImage, checkOutBy, tags, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        item.name,
-        item.type ?? null,
-        item.area ?? null,
-        item.location ?? null,
-        item.status ?? null,
-        item.quantity ?? null,
-        item.condition ?? null,
-        item.itemImage ?? null,
-        item.checkOutBy ?? null,
-        item.tags ?? null,
-        item.notes ?? null
-    );
-    return db.get('SELECT * FROM inventory WHERE id = ?', result.lastID);
+  const db = getDb();
+  const insertPayload = {
+    ...item,
+    lastUpdated: normalizeTimestamp(item.lastUpdated)
+  };
+  const columns = Object.keys(insertPayload);
+  const placeholders = columns.map((_, index) => `$${index + 1}`).join(', ');
+  const values = columns.map(key => insertPayload[key]);
+
+  const result = await db.query(
+    `INSERT INTO inventory (${columns.join(', ')}) VALUES (${placeholders}) RETURNING *`,
+    values
+  );
+
+  return result.rows[0];
 }
 
-/*
- * Finds an inventory item by its ID. Used for operations like deletion or updates.
- * Returns the inventory item if found, or null if no match is found.
- */
 export const findInventoryById = async (id) => {
-    const db = await getDb();
-
-    const result = await db.get('SELECT * FROM inventory WHERE id = ?', [id]);
-    return result ?? null;
+  const db = getDb();
+  const result = await db.query('SELECT * FROM inventory WHERE id = $1 LIMIT 1', [id]);
+  return result.rows[0] ?? null;
 };
 
-/*
- * Deletes an inventory item from the database by its ID.
- * Returns the result of the delete operation.
- */
 export const deleteInventoryById = async (id) => {
-    const db = await getDb();
-    return db.run('DELETE FROM inventory WHERE id = ?', [id]);
+  const db = getDb();
+  await db.query('DELETE FROM inventory WHERE id = $1', [id]);
+  return true;
 };

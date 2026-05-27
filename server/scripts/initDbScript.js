@@ -1,4 +1,9 @@
 import { initDb } from '../db/initDb.js';
 
-const db = await initDb();
-await db.close();
+try {
+  await initDb();
+  console.log('Inventory access is configured correctly.');
+} catch (err) {
+  console.error('Failed to verify Supabase inventory configuration:', err.message);
+  process.exit(1);
+}

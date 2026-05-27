@@ -9,7 +9,7 @@
     "start": "node server.js",
     "init-db": "node scripts/initDbScript.js",
     "seed-db": "node scripts/seedDbScript.js",
-    "reset-db": "node scripts/deleteDbScript.js && node scripts/initDbScript.js",
+    "reset-db": "node scripts/deleteDbScript.js && node scripts/seedDbScript.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --coverage"
   },
@@ -26,9 +26,9 @@
   ],
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.3.0",
     "express": "^5.2.1",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^6.0.1"
+    "pg": "^8.11.1"
   },
   "devDependencies": {
     "jest": "^30.3.0",

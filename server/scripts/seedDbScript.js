@@ -1,7 +1,9 @@
-import { initDb } from '../db/initDb.js';
+import dotenv from 'dotenv';
+import { getDb } from '../db/db.js';
+
+dotenv.config();
 
 const seedData = [
-  // Tools
   { name: 'Cordless Drill', type: 'tool', area: 'Machine Shop', location: 'Tool Cabinet A', status: 'available', quantity: 2, condition: 'good', checkOutBy: null, tags: 'power,drilling', notes: 'Includes 2 battery packs', itemImage: 'images/cordless-drill.jpg' },
   { name: 'Impact Driver', type: 'tool', area: 'Machine Shop', location: 'Tool Cabinet A', status: 'checked-out', quantity: 1, condition: 'good', checkOutBy: 'mechanical', tags: 'power,fastening', notes: null, itemImage: 'images/impact-driver.jpg' },
   { name: 'Soldering Iron', type: 'tool', area: 'Electronics Lab', location: 'Electronics Bench 1', status: 'available', quantity: 3, condition: 'good', checkOutBy: null, tags: 'electronics,soldering', notes: 'Set temp to 350°C for standard use', itemImage: 'images/soldering-iron.jpg' },
@@ -14,8 +16,6 @@ const seedData = [
   { name: 'Wire Strippers', type: 'tool', area: 'Electronics Lab', location: 'Electronics Bench 1', status: 'available', quantity: 3, condition: 'good', checkOutBy: null, tags: 'electronics,wiring', notes: null, itemImage: 'images/wire-strippers.jpg' },
   { name: 'Oscilloscope', type: 'tool', area: 'Electronics Lab', location: 'Electronics Bench 3', status: 'available', quantity: 1, condition: 'good', checkOutBy: null, tags: 'electronics,testing', notes: 'Handle with care — expensive equipment', itemImage: 'images/oscilloscope.jpg' },
   { name: 'Heat Gun', type: 'tool', area: 'Fabrication Area', location: 'Craft Shelf', status: 'available', quantity: 2, condition: 'good', checkOutBy: null, tags: 'power,heat-shrink', notes: null, itemImage: 'images/heat-gun.jpg' },
-
-  // Parts
   { name: '22 AWG Hookup Wire', type: 'part', area: 'Electronics Lab', location: 'Electronics Drawer 1', status: 'available', quantity: 10, condition: 'new', checkOutBy: null, tags: 'wiring,electronics', notes: 'Mixed colors — red, black, yellow, green spools', itemImage: 'images/hookup-wire.jpg' },
   { name: 'DC Gearmotor 12V', type: 'part', area: 'Electronics Lab', location: 'Parts Bin A', status: 'available', quantity: 6, condition: 'good', checkOutBy: null, tags: 'motor,drivetrain', notes: '100 RPM at no load', itemImage: 'images/dc-gearmotor.jpg' },
   { name: 'Servo Motor (Standard)', type: 'part', area: 'Electronics Lab', location: 'Parts Bin A', status: 'available', quantity: 8, condition: 'good', checkOutBy: null, tags: 'motor,actuator', notes: 'Compatible with PWM signal 50Hz', itemImage: 'images/servo-motor.jpg' },
@@ -28,8 +28,6 @@ const seedData = [
   { name: 'RGB LED Strip 5M', type: 'part', area: 'Electronics Lab', location: 'Electronics Drawer 3', status: 'available', quantity: 4, condition: 'good', checkOutBy: null, tags: 'electronics,lighting', notes: '12V addressable WS2812B', itemImage: 'images/rgb-led-strip.jpg' },
   { name: 'Zip Ties Assorted', type: 'part', area: 'Main Lab', location: 'Fastener Bin', status: 'available', quantity: 200, condition: 'new', checkOutBy: null, tags: 'fastener,cable-management', notes: 'Sizes: 4in, 8in, 12in', itemImage: 'images/zip-ties.jpg' },
   { name: 'Ultrasonic Distance Sensor', type: 'part', area: 'Electronics Lab', location: 'Parts Bin A', status: 'available', quantity: 7, condition: 'good', checkOutBy: null, tags: 'sensor,electronics', notes: 'HC-SR04 — 5V logic', itemImage: 'images/ultrasonic-sensor.jpg' },
-
-  // Materials
   { name: '3/4" Plywood Sheet', type: 'material', area: 'Fabrication Area', location: 'Lumber Rack', status: 'available', quantity: 5, condition: 'good', checkOutBy: null, tags: 'wood,structural', notes: '4x8 ft sheets', itemImage: 'images/plywood-sheet.jpg' },
   { name: '1" Aluminum Bar Stock', type: 'material', area: 'Machine Shop', location: 'Metal Rack', status: 'available', quantity: 8, condition: 'good', checkOutBy: null, tags: 'metal,structural', notes: '36 inch lengths', itemImage: 'images/aluminum-bar-stock.jpg' },
   { name: '1/4" Acrylic Sheet (Clear)', type: 'material', area: 'Fabrication Area', location: 'Materials Shelf', status: 'available', quantity: 3, condition: 'good', checkOutBy: null, tags: 'plastic,enclosure', notes: '24x24 in sheets', itemImage: 'images/acrylic-sheet.jpg' },
@@ -42,35 +40,35 @@ const seedData = [
   { name: 'Heat Shrink Tubing Kit', type: 'material', area: 'Electronics Lab', location: 'Electronics Drawer 1', status: 'available', quantity: 5, condition: 'new', checkOutBy: null, tags: 'electronics,wiring', notes: 'Assorted sizes 2:1 shrink ratio', itemImage: 'images/heat-shrink-tubing.jpg' },
 ];
 
+function buildInsertQuery(item) {
+  const keys = Object.keys(item);
+  const columns = keys.join(', ');
+  const placeholders = keys.map((_, index) => `$${index + 1}`).join(', ');
+  const values = keys.map(key => item[key]);
+
+  return {
+    text: `INSERT INTO inventory (${columns}) VALUES (${placeholders})`,
+    values,
+  };
+}
+
 async function seed() {
-    const db = await initDb();
+  const db = getDb();
+  console.log('Seeding inventory table...');
 
-    console.log('Seeding database with initial inventory data...');
+  for (const item of seedData) {
+    const seedRow = {
+      ...item,
+      lastUpdated: new Date().toISOString(),
+    };
 
-    for (const item of seedData) {
-        await db.run(
-            `INSERT INTO inventory 
-              (name, type, area, location, status, quantity, condition, itemImage, checkOutBy, tags, notes) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            item.name,
-            item.type ?? null,
-            item.area ?? null,
-            item.location ?? null,
-            item.status ?? null,
-            item.quantity ?? null,
-            item.condition ?? null,
-            item.itemImage ?? null,
-            item.checkOutBy ?? null,
-            item.tags ?? null,
-            item.notes ?? null
-        );
-    }
+    await db.query(buildInsertQuery(seedRow));
+  }
 
-    console.log(`Database seeding completed. ${seedData.length} items inserted.`);
-    await db.close();
+  console.log(`Seed completed. ${seedData.length} items inserted.`);
 }
 
 seed().catch(err => {
-    console.error('Error occurred while seeding the database:', err);
-    process.exit(1);
+  console.error('Error occurred while seeding the Supabase database:', err);
+  process.exit(1);
 });

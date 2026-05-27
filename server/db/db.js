@@ -1,14 +1,22 @@
-import { open } from 'sqlite';
-import sqlite3 from 'sqlite3';
+import dotenv from 'dotenv';
+import pg from 'pg';
 
-let db;
+const { Pool } = pg;
 
-export async function getDb() {
-  if (!db) {
-    db = await open({
-      filename: 'db/frc-inventory.db',
-      driver: sqlite3.Database
-    });
+dotenv.config();
+
+let pool;
+
+export function getDb() {
+  if (!pool) {
+    const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+
+    if (!connectionString) {
+      throw new Error('Missing DATABASE_URL or SUPABASE_DB_URL in environment');
+    }
+
+    pool = new Pool({ connectionString });
   }
-  return db;
+
+  return pool;
 }
