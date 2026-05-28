@@ -61,6 +61,17 @@ cd server
 npm install
 npm run init-db
 ```
+
+### Configure the frontend API host
+Create `client/.env` from `client/.env.example` and set the frontend base URL:
+
+```env
+VITE_API_BASE=https://lucky-spare-pit.onrender.com/api
+```
+
+- This value is used by the React app when it calls the server.
+- If you run the backend locally instead of Render, update this to your local server URL.
+
 ---
 ### Run Start Script
 *This should be done from the root of the project*

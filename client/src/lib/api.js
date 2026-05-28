@@ -1,6 +1,8 @@
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://lucky-spare-pit.onrender.com/api';
+
 // Fetches the full inventory list from the server.
 export async function fetchInventory() {
-  const response = await fetch('/api/inventory');
+  const response = await fetch(`${API_BASE}/inventory`);
   if (!response.ok) throw new Error('Failed to fetch inventory');
   return response.json();
 }
@@ -9,7 +11,7 @@ export async function fetchInventory() {
 // PATCH (vs PUT) means we only send the fields we want to change, not the whole item.
 // `id` identifies which row to update; `fields` is an object of just the changed values.
 export async function patchInventory(id, fields) {
-  const response = await fetch(`/api/inventory/${id}`, {
+  const response = await fetch(`${API_BASE}/inventory/${id}`, {
     method: 'PATCH',
     // Tell the server we're sending JSON, not a form or plain text.
     headers: { 'Content-Type': 'application/json' },
@@ -24,7 +26,7 @@ export async function patchInventory(id, fields) {
 
 // Permanently removes one inventory item from the database.
 export async function deleteInventory(id) {
-  const response = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
+  const response = await fetch(`${API_BASE}/inventory/${id}`, { method: 'DELETE' });
   if (!response.ok) throw new Error('Failed to delete inventory item');
   return response.json();
 }
