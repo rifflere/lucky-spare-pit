@@ -1,0 +1,27 @@
+# ============================================================
+# netlify.toml — Netlify Deployment Configuration
+# Tells Netlify how to build and serve the frontend.
+# ============================================================
+
+[build]
+  # Where to run the build command from
+  base    = "client"
+
+  # Command Netlify runs to build the app
+  command = "npm install && npm run build"
+
+  # Folder Netlify serves after the build — Vite outputs to dist/
+  publish = "dist"
+
+# ============================================================
+# Redirect rule for client-side routing.
+# Without this, refreshing any page other than / gives a 404
+# because Netlify looks for a real file at that path.
+# This tells it to always serve index.html and let React Router
+# handle the URL (we don't use React Router here, but it's
+# good practice to always include this).
+# ============================================================
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
