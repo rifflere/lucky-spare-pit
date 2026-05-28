@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE } from '../lib/api';
 import '../styles/AddItemPage.css';
 
 const INITIAL_FORM = {
@@ -16,7 +17,7 @@ function AddItemPage({ onNavigate }) {
   const [subteams, setSubteams] = useState([]);
 
   useEffect(() => {
-    fetch("/api/inventory/subteams")
+    fetch(`${API_BASE}/inventory/subteams`)
       .then(r => r.json())
       .then(setSubteams)
       .catch(() => {});
@@ -63,7 +64,7 @@ function AddItemPage({ onNavigate }) {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/inventory", {
+      const res = await fetch(`${API_BASE}/inventory`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

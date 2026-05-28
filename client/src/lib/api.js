@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://lucky-spare-pit.onrender.com/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'https://lucky-spare-pit.onrender.com/api';
 
 // Fetches the full inventory list from the server.
 export async function fetchInventory() {

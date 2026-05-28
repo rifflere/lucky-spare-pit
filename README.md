@@ -70,6 +70,7 @@ VITE_API_BASE=https://lucky-spare-pit.onrender.com/api
 ```
 
 - This value is used by the React app when it calls the server.
+- If you deploy the frontend to Netlify, set `VITE_API_BASE` in the Netlify build environment as well.
 - If you run the backend locally instead of Render, update this to your local server URL.
 
 ---

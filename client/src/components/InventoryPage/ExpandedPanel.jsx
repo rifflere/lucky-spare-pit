@@ -1,13 +1,13 @@
 // Renders the expanded detail panel for an inventory item, in read or edit mode.
 import { useEffect, useState } from 'react';
-import { patchInventory } from '../../lib/api';
+import { API_BASE, patchInventory } from '../../lib/api';
 
 // Fetches the list of subteam names (e.g. "electrical", "programming") from the server.
 // These populate the autocomplete suggestions on the "Checked out by" field.
 function useSubteams() {
   const [subteams, setSubteams] = useState([]);
   useEffect(() => {
-    fetch('/api/inventory/subteams')
+    fetch(`${API_BASE}/inventory/subteams`)
       .then((r) => r.json())
       .then(setSubteams)
       // Silently ignore fetch failures — the field still works as a plain text input.

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { API_BASE } from '../lib/api'
 import AddItemPage from './AddItemPage'
 
 function makeFetch(data, { ok = true } = {}) {
@@ -125,7 +126,7 @@ describe('AddItemPage', () => {
       json: () => Promise.resolve(['electrical', 'mechanical']),
     }))
     render(<AddItemPage onNavigate={onNavigate} />)
-    await waitFor(() => expect(fetch).toHaveBeenCalledWith('/api/inventory/subteams'))
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith(`${API_BASE}/inventory/subteams`))
   })
 
   it('populates the datalist with fetched subteams', async () => {
