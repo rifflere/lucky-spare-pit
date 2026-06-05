@@ -1,9 +1,18 @@
-export const API_BASE = import.meta.env.VITE_API_BASE || 'https://lucky-spare-pit.onrender.com/api';
+// Reads the server's JSON error body and returns its `error` field.
+// Falls back to `fallback` if the body is missing or unparseable.
+async function serverError(response, fallback) {
+  try {
+    const body = await response.json();
+    return body.error || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 // Fetches the full inventory list from the server.
 export async function fetchInventory() {
-  const response = await fetch(`${API_BASE}/inventory`);
-  if (!response.ok) throw new Error('Failed to fetch inventory');
+  const response = await fetch('/api/inventory');
+  if (!response.ok) throw new Error(await serverError(response, 'Failed to fetch inventory'));
   return response.json();
 }
 
@@ -20,13 +29,18 @@ export async function patchInventory(id, fields) {
   });
   // If the server responded with an error status (4xx/5xx), surface it as a thrown error
   // so callers can catch it and show a message to the user.
-  if (!response.ok) throw new Error('Failed to update inventory item');
+  if (!response.ok) throw new Error(await serverError(response, 'Failed to update inventory item'));
   return response.json();
 }
 
 // Permanently removes one inventory item from the database.
 export async function deleteInventory(id) {
+<<<<<<< HEAD
   const response = await fetch(`${API_BASE}/inventory/${id}`, { method: 'DELETE' });
   if (!response.ok) throw new Error('Failed to delete inventory item');
+=======
+  const response = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error(await serverError(response, 'Failed to delete inventory item'));
+>>>>>>> 796ac6e795cc3b6b27826a7901c7c0c2ce809c09
   return response.json();
 }

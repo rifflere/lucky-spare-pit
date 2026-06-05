@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { getDb } from '../db/db.js';
 
 async function clearInventory() {
@@ -10,3 +11,8 @@ clearInventory().catch(err => {
   console.error('Error occurred while clearing Supabase inventory data:', err);
   process.exit(1);
 });
+=======
+import { deleteDb } from '../db/deleteDb.js';
+
+await deleteDb();
+>>>>>>> 796ac6e795cc3b6b27826a7901c7c0c2ce809c09
