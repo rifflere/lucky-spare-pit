@@ -11,8 +11,6 @@ import {
   getAllTagStrings,
 } from '../models/inventoryModel.supabase.js';
 
-<<<<<<< HEAD
-=======
 // Columns that controllers are allowed to write via PATCH or POST.
 // id and lastUpdated are excluded: id is auto-generated,
 // lastUpdated is always set by the service layer to the current timestamp.
