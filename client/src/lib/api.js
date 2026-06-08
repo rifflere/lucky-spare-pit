@@ -35,12 +35,7 @@ export async function patchInventory(id, fields) {
 
 // Permanently removes one inventory item from the database.
 export async function deleteInventory(id) {
-<<<<<<< HEAD
-  const response = await fetch(`${API_BASE}/inventory/${id}`, { method: 'DELETE' });
-  if (!response.ok) throw new Error('Failed to delete inventory item');
-=======
   const response = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
   if (!response.ok) throw new Error(await serverError(response, 'Failed to delete inventory item'));
->>>>>>> 796ac6e795cc3b6b27826a7901c7c0c2ce809c09
   return response.json();
 }
