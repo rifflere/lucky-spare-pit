@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { API_BASE } from '../../lib/api';
 import { filterInventory } from '../../utils/filterInventory';
 import { useInventory } from '../../utils/useInventory';
 import SearchBar from '../SearchBar';
@@ -42,7 +43,7 @@ function InventoryPage() {
     // Fetch tags from the server on first open only.
     if (!tagsLoaded) {
       try {
-        const res = await fetch('/api/inventory/tags');
+        const res = await fetch(`${API_BASE}/api/inventory/tags`);
         const tags = await res.json();
         setAvailableTags(tags);
         setTagsLoaded(true);

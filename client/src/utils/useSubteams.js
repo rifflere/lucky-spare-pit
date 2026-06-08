@@ -2,11 +2,12 @@
 // Used to populate autocomplete suggestions on the "Checked out by" field.
 // Fetch failures are silently swallowed — the field still works as a plain text input.
 import { useState, useEffect } from 'react';
+import { API_BASE } from '../lib/api';
 
 export function useSubteams() {
   const [subteams, setSubteams] = useState([]);
   useEffect(() => {
-    fetch('/api/inventory/subteams')
+    fetch(`${API_BASE}/api/inventory/subteams`)
       .then((r) => r.json())
       .then(setSubteams)
       .catch(() => {});

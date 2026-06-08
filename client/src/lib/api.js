@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+export const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 // Reads the server's JSON error body and returns its `error` field.
 // Falls back to `fallback` if the body is missing or unparseable.

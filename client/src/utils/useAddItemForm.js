@@ -1,5 +1,6 @@
 // Form state, validation, and submission logic for the Add Item page.
 import { useState } from 'react';
+import { API_BASE } from '../lib/api';
 import { useSubteams } from './useSubteams';
 import { useTags } from './useTags';
 
@@ -62,7 +63,7 @@ export function useAddItemForm(onSuccess) {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/inventory', {
+      const res = await fetch(`${API_BASE}/api/inventory`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
