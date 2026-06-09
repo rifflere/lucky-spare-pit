@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-CREATE TABLE inventory (
-  id            SERIAL PRIMARY KEY,
-  name          TEXT NOT NULL,
-  type          TEXT,
-  area          TEXT,
-  location      TEXT,
-  status        TEXT,
-  quantity      INTEGER,
-  condition     TEXT,
-  "itemImage"   TEXT,
-  "checkOutBy"  TEXT,
-  "lastUpdated" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  tags          TEXT,
-  notes         TEXT
-);
-=======
 -- Supabase inventory table schema.
 --
 -- How to apply:
@@ -41,4 +24,3 @@ create table public.inventory (
   notes           text,
   "needsRestock"  integer     default 0
 );
->>>>>>> 796ac6e795cc3b6b27826a7901c7c0c2ce809c09
